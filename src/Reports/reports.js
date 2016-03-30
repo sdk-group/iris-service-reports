@@ -1,6 +1,6 @@
 'use strict'
 let emitter = require("global-queue");
-let TiketApi = require('resource-management-framework').TiketApi;
+let TicketApi = require('resource-management-framework').TicketApi;
 
 let moment = require('moment-timezone');
 require('moment-range');
