@@ -12,10 +12,12 @@ class Reports {
 	init(config) {
 		this.tickets = new TicketApi();
 		this.tickets.initContent();
-
 	}
 	launch() {
 		return Promise.resolve(true);
+	}
+	actionMakeReport(type, property, interval) {
+		//@NOTE: check cache here
 	}
 
 	//API
