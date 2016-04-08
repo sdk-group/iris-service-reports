@@ -5,6 +5,9 @@ let TicketApi = require('resource-management-framework').TicketApi;
 let moment = require('moment-timezone');
 require('moment-range');
 
+//@NOTE: test
+let Reg = require('./Entities/Service/registered.js');
+
 class Reports {
 	constructor() {
 		this.emitter = emitter;
@@ -14,9 +17,28 @@ class Reports {
 		this.tickets.initContent();
 	}
 	launch() {
+		let R = new Reg();
+
+		setTimeout(() => {
+
+
+			for (let i = 0; i < 10; i++) {
+				let d = moment();
+				d.add(-1 * i, 'days');
+				this.getTickets({
+					query: {
+						dedicated_date: d,
+						org_destination: 'department-1'
+					}
+				}).then((r) => console.log(d.format(), R.process(r)));
+
+			}
+		}, 5000);
+
 		return Promise.resolve(true);
 	}
-	actionMakeReport(type, property, interval) {
+	actionMakeReport(type, properties, interval) {
+
 		//@NOTE: check cache here
 	}
 
