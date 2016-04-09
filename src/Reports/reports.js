@@ -3,6 +3,8 @@ let emitter = require("global-queue");
 let TicketApi = require('resource-management-framework').TicketApi;
 
 let moment = require('moment-timezone');
+let crossfilter = require('crossfilter2');
+
 require('moment-range');
 
 //@NOTE: test
@@ -21,7 +23,6 @@ class Reports {
 
 		setTimeout(() => {
 
-
 			for (let i = 0; i < 10; i++) {
 				let d = moment();
 				d.add(-1 * i, 'days');
@@ -30,7 +31,18 @@ class Reports {
 						dedicated_date: d,
 						org_destination: 'department-1'
 					}
-				}).then((r) => console.log(d.format(), R.process(r)));
+				}).then((r) => {
+					let c = crossfilter(r);
+					let all = c.groupAll();
+					let state = c.dimension(function (d) {
+						return d.state;
+					});
+					let states = state.group(function (d) {
+						console.log(d);
+						return d;
+					});
+					console.log(states.top(10));
+				});
 
 			}
 		}, 5000);
