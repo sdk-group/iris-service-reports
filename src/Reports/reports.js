@@ -9,6 +9,38 @@ require('moment-range');
 //@NOTE: test
 let Reg = require('./Entities/Service/registered.js');
 
+//@NOTE: it's draft
+let table_draft = {
+  interval: [0, 1000],
+  entity: "Ticket",
+  interval_field: "dedicated_date",
+  params: [{
+    label: "Param 1",
+    group: ['interval literal', 'smaller interval literal', '60min'],
+    agregator: "sum", //String const
+    filter: [{
+      field: "%field_name%",
+      condition: "%field_name% > 10"
+    }, {
+      field: "%field_name%",
+      condition: "%field_name% = meow"
+    }]
+  }, {
+    label: "Param 2"
+      //...
+  }]
+};
+
+const group_delimiter = '::';
+
+function discoverAgregator(name) {
+
+}
+
+function discoverSplitter(name) {
+
+}
+
 class Reports {
   constructor() {
     this.emitter = emitter;
@@ -42,9 +74,20 @@ class Reports {
   actionGetTable(table) {
 
   }
-  actionMakeReport(type, properties, interval) {
+  getKeybuilder(entity) {
 
-    //@NOTE: check cache here
+  }
+  parseParams(param) {
+
+  }
+  composeGroupFunction(groups) {
+
+  }
+  composeFilter(filter) {
+
+  }
+  parseFilter(condition) {
+
   }
 
   //API
