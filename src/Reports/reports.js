@@ -87,11 +87,15 @@ class Reports {
   composeGroupFunction(groups) {
 
   }
-  composeFilter(filters) {
-    let filters_functions = _.map(filters, desc => this.parseFilter(desc));
+  composeFilter(entity, filters) {
+    let filters_functions = _.map(filters, desc => _.isObject(desc) ? this.findFilter(entity, desc) : this.parseFilter(desc));
+
     return sequence(filters_functions);
   }
-  parseFilter(description) {
+  findFilter(entity, name) {
+
+  }
+  parseFilter(condition) {
 
   }
 
