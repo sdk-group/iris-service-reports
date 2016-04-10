@@ -41,6 +41,10 @@ function discoverSplitter(name) {
 
 }
 
+let sequence = function(fns) {
+  return (result) => _.reduce(fns, (a, f) => f.call(this, a), result);
+};
+
 class Reports {
   constructor() {
     this.emitter = emitter;
@@ -83,10 +87,11 @@ class Reports {
   composeGroupFunction(groups) {
 
   }
-  composeFilter(filter) {
-
+  composeFilter(filters) {
+    let filters_functions = _.map(filters, desc => this.parseFilter(desc));
+    return sequence(filters_functions);
   }
-  parseFilter(condition) {
+  parseFilter(description) {
 
   }
 
