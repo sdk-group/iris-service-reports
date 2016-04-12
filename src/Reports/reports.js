@@ -14,41 +14,18 @@ let table_draft = {
 	params: [{
 		label: "Param 1",
 		group: ['month', 'week-day', '30min'],
-		agregator: "sum", //String const
-		filter: [{
-			field: "%field_name%",
-			condition: "%field_name% > 10"
-		}, {
-			field: "%field_name%",
-			condition: "%field_name% = meow"
-		}]
+		aggregator: "sum", //String const
+		filter: ["state = registered"]
 	}, {
 		label: "Param 2"
 			//...
 	}]
 };
 
-const group_delimiter = '::';
 
-let registry = require('./Entities/function-registry.js');
-
-function discoverAgregator(name) {
-
-}
-
-function discoverSplitter(name) {
-	if (_.isNaN(parseInt(name, 10))) {
-		return registry.Common.Splitter[name];
-	} else {
-		let interval = parseInt(name, 10);
-
-		return registry.Common.Splitter.minute.bind(null, interval);
-	}
-}
-
-let sequence = function (fns) {
-	return (result) => _.reduce(fns, (a, f) => f.call(this, a), result);
-};
+let Splitters = require('./Entities/Splitter.js');
+let Filters = require('./Entities/Filter.js');
+let Aggregators = require('./Entities/Aggregator.js');
 
 class Reports {
 	constructor() {
@@ -59,31 +36,34 @@ class Reports {
 		this.tickets.initContent();
 	}
 	launch() {
+		let entity_name = table_draft.entity;
+		let group_names = table_draft.params[0].group;
+		let filters = table_draft.params[0].filter;
+		let group = Splitters.compose(entity_name, group_names);
+		let filter = Filters.compose(entity_name, filters);
+		setTimeout(() => {
 
-		// setTimeout(() => {
-		//
-		// 	for (let i = 0; i < 10; i++) {
-		// 		let d = moment();
-		// 		d.add(-1 * i, 'days');
-		// 		this.getTickets({
-		// 			query: {
-		// 				dedicated_date: d,
-		// 				org_destination: 'department-1'
-		// 			}
-		// 		}).then((r) => {
-		//
-		// 		});
-		//
-		// 	}
-		// }, 5000);
+			for (let i = 0; i < 10; i++) {
+				let d = moment();
+				d.add(-1 * i, 'days');
+				this.getTickets({
+					query: {
+						dedicated_date: d,
+						org_destination: 'department-1'
+					}
+				}).then((r) => {
+					_.forEach(r, t => {
+						console.log(group(t.booking_date));
+						console.log(filter(t));
+						console.log(t.state);
+					});
 
-		//@NOTE: test
-		let fn = this.composeGroupFunction();
-		for (let i = 0; i < 10; i++) {
-			let d = moment();
-			d.add(-1 * i, 'days');
-			console.log(fn(d.format()));
-		}
+				});
+
+			}
+		}, 5000);
+
+
 
 		return Promise.resolve(true);
 	}
@@ -95,16 +75,6 @@ class Reports {
 	}
 	parseParams(param) {
 
-	}
-	composeGroupFunction(grouping_function) {
-		grouping_function = table_draft.params[0].group;
-		let functions = _.map(grouping_function, name => discoverSplitter(name));
-
-		let result = (data) => {
-			return _.map(functions, f => f(data)).join(group_delimiter);
-		}
-
-		return result;
 	}
 	composeFilter(entity, filters) {
 		let filters_functions = _.map(filters, desc => _.isObject(desc) ? this.findFilter(entity, desc) : this.parseFilter(desc));
