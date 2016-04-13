@@ -15,6 +15,7 @@ let table_draft = {
 		label: "Param 1",
 		field: "key",
 		group: ['month', 'week-day', '30min'],
+		groupby: 'booking_date',
 		aggregator: "sum", //String const
 		filter: ["state != registered"]
 	}, {
@@ -61,6 +62,7 @@ class Reports {
 					// console.log(group(t.booking_date));
 					// console.log(composed.filter(t));
 					if (filter(t)) {
+						console.log(group(t.booking_date), t.booking_date);
 						console.log(t[table_draft.params[0].field]);
 					}
 					// console.log(t.state);
