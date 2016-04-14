@@ -80,7 +80,10 @@ class Reports {
 
 		return Promise.resolve(true);
 	}
-	actionGetTable(table) {
+	actionGetTable({
+		table,
+		workstation
+	}) {
 		let rows = table.params;
 		let entity_name = table.entity;
 
