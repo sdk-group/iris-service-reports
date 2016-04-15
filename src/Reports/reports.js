@@ -8,19 +8,16 @@ require('moment-range');
 
 //@NOTE: it's draft
 let table_draft = {
-	interval: [0, 1000],
+	interval: ["2016-04-11", "2016-04-14"],
 	entity: "Ticket",
 	interval_field: "dedicated_date",
 	params: [{
 		label: "Param 1",
-		field: "key",
-		group: ['month', 'week-day', '30min'],
+		key: "id",
+		group: ['month', 'month-day', '60min'],
 		groupby: 'booking_date',
-		aggregator: "sum", //String const
-		filter: ["state != registered"]
-	}, {
-		label: "Param 2"
-			//...
+		aggregator: "count", //String const
+		filter: []
 	}]
 };
 
@@ -39,47 +36,22 @@ class Reports {
 		this.tickets.initContent();
 	}
 	launch() {
+		var time = process.hrtime();
 
-		let entity_name = table_draft.entity;
-		let group_names = table_draft.params[0].group;
-		let filters = table_draft.params[0].filter;
-		let group = Splitters.compose(entity_name, group_names);
-		let filter = Filters.compose(entity_name, filters);
+		this.actionGetTable({
+			table: table_draft
+		}).then(d => {
 
-		let last;
-		setTimeout(() => {
-			let d = moment("2016-04-11");
-			this.getTickets({
-				query: {
-					dedicated_date: d,
-					org_destination: 'department-1'
-				}
-			}).then((r) => {
-				console.log('response');
-				console.log(r.length);
-				var time = process.hrtime();
-				_.forEach(r, t => {
-					// console.log(t.booking_date);
-					// console.log(group(t.booking_date));
-					// console.log(composed.filter(t));
-					if (filter(t)) {
-						console.log(group(t.booking_date), t.history);
-						console.log(t[table_draft.params[0].field]);
-					}
-					// console.log(t.state);
-				});
+			var diff = process.hrtime(time);
 
-
-				var diff = process.hrtime(time);
-
-				console.log('benchmark took %d msec', (diff[0] * 1e9 + diff[1]) / 1000000);
-			});
-		}, 5000);
-
-
+			console.log('request took %d msec', (diff[0] * 1e9 + diff[1]) / 1000000);
+			console.log('result', d)
+		});
 
 		return Promise.resolve(true);
 	}
+
+	//API
 	actionGetTable({
 		table,
 		workstation
@@ -97,10 +69,9 @@ class Reports {
 
 		let accumulator = _.mapValues(rows, row => ({}));
 
-		let table = new Promise(function (resolve, reject) {
+		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
 				_.forEach(rows, (row, index) => {
-
 					let groupby = row.groupby;
 					let key = row.key;
 					let {
@@ -109,42 +80,29 @@ class Reports {
 					} = fns[index];
 
 					_.forEach(data, (data_row) => {
-						if (!filter(data_row)) return true;
+							if (!filter(data_row)) return true;
 
-						let group_index = group(data_row[groupby]);
-						if (!accumulator[index][group_index]) accumulator[index][group_index] = [];
+							let group_index = group(data_row[groupby]);
+							if (!accumulator[index][group_index]) accumulator[index][group_index] = [];
 
-						accumulator[index][group_index].push(data_row[key]);
-					})
-
+							accumulator[index][group_index].push(data_row[key]);
+						})
+						// console.log(accumulator);
 				})
 			}).finally(() => {
+
 				let result = _.mapValues(rows, (row, index) => {
-					return _.map(accumulator, fns[index].aggregator);
+					return _.mapValues(accumulator[index], fns[index].aggregator);
 				});
 
 				resolve(result);
 			});
 		});
 
-		return table
+		return result;
 	}
 
-	//API
-	getTickets({
-		query,
-		keys
-	}) {
-		return this.emitter.addTask('ticket', {
-				_action: 'ticket',
-				query,
-				keys
-			})
-			.then((res) => {
-				// console.log("RES Q", res, query);
-				return _.values(res);
-			});
-	}
+
 
 }
 module.exports = Reports;

@@ -16,6 +16,8 @@ composer.prototype.filter = function (d) {
 
 let Filter = {
 	compose(type, names) {
+		if (_.isEmpty(names)) return () => true;
+
 		let filters_functions = _.map(names, desc => this.isCondition(desc) ? this.parse(desc) : this.discover(entity, desc));
 
 		return (d) => _.reduce(filters_functions, (a, f) => a = a && f(d), true);
