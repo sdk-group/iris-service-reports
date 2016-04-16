@@ -8,7 +8,7 @@ require('moment-range');
 
 //@NOTE: it's draft
 let table_draft = {
-	interval: ["2016-04-11", "2016-04-14"],
+	interval: ["2016-04-01", "2016-04-14"],
 	entity: "Ticket",
 	interval_field: "dedicated_date",
 	params: [{
@@ -92,7 +92,10 @@ class Reports {
 			}).finally(() => {
 
 				let result = _.mapValues(rows, (row, index) => {
-					return _.mapValues(accumulator[index], fns[index].aggregator);
+					return _.mapValues(accumulator[index], (d) => ({
+						value: fns[index].aggregator(d),
+						meta: {}
+					}));
 				});
 
 				resolve(result);

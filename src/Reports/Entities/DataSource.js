@@ -5,13 +5,14 @@ let message_bus = require('global-queue');
 class Source {
 	constructor(interval) {
 		this.interval = interval;
+		this.concurrency = 3;
 	}
 	parse(callback) {
 		//@TODO: filter first day. ticket's date must be greater, then interval start
 		//@TODO: filter last day. ticket's date must be less , then interval end
 		let response_counter = 0;
 		let days = this.getDays();
-		_.forEach(days, (day) => this.getTickets({
+		Promise.map(days, day => this.getTickets({
 				query: {
 					dedicated_date: day,
 					org_destination: 'department-1'
@@ -23,11 +24,13 @@ class Source {
 			})
 			.then(callback)
 			.then(() => {
-
-
 				response_counter += 1;
 				if (response_counter == days.length) this.final();
-			}));
+
+				return true;
+			}), {
+				concurrency: this.concurrency
+			});
 		return this;
 	}
 	finally(callback) {
