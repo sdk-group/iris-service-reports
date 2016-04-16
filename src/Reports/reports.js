@@ -8,14 +8,26 @@ require('moment-range');
 
 //@NOTE: it's draft
 let table_draft = {
-	interval: ["2016-04-01", "2016-04-14"],
+	interval: ["2016-04-11", "2016-04-14"],
 	entity: "Ticket",
 	interval_field: "dedicated_date",
+	department: ['department-1', 'department-2'],
 	params: [{
 		label: "Param 1",
 		key: "id",
-		group: ['month', 'month-day', '60min'],
-		groupby: 'booking_date',
+		group: [{
+			method: 'month',
+			field: 'booking_date'
+		}, {
+			method: 'month-day',
+			field: 'booking_date'
+		}, {
+			method: '60min',
+			field: 'booking_date'
+		}, {
+			method: 'enum',
+			field: "org_destination"
+		}],
 		aggregator: "count", //String const
 		filter: []
 	}]
@@ -59,7 +71,10 @@ class Reports {
 		let rows = table.params;
 		let entity_name = table.entity;
 
-		let source = DataSource.discover(entity_name, table.interval_field, table.interval);
+		let source = DataSource.discover(entity_name, table.interval_field);
+
+		source.setInterval(table.interval)
+			.setDepartments(table.department);
 
 		let fns = _.mapValues(rows, row => ({
 			group: Splitters.compose(entity_name, row.group),
@@ -72,7 +87,6 @@ class Reports {
 		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
 				_.forEach(rows, (row, index) => {
-					let groupby = row.groupby;
 					let key = row.key;
 					let {
 						group,
@@ -82,7 +96,7 @@ class Reports {
 					_.forEach(data, (data_row) => {
 							if (!filter(data_row)) return true;
 
-							let group_index = group(data_row[groupby]);
+							let group_index = group(data_row);
 							if (!accumulator[index][group_index]) accumulator[index][group_index] = [];
 
 							accumulator[index][group_index].push(data_row[key]);
