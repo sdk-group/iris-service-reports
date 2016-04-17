@@ -8,7 +8,7 @@ require('moment-range');
 
 //@NOTE: it's draft
 let table_draft = {
-	interval: ["2016-04-11", "2016-04-14"],
+	interval: ["2016-04-07", "2016-04-14"],
 	entity: "Ticket",
 	interval_field: "dedicated_date",
 	department: ['department-1', 'department-2'],
@@ -29,7 +29,8 @@ let table_draft = {
 			field: "org_destination"
 		}],
 		aggregator: "count", //String const
-		filter: []
+		filter: [],
+		meta: 'id'
 	}]
 };
 
@@ -57,7 +58,6 @@ class Reports {
 			var diff = process.hrtime(time);
 
 			console.log('request took %d msec', (diff[0] * 1e9 + diff[1]) / 1000000);
-			console.log('result', d)
 		});
 
 		return Promise.resolve(true);
@@ -83,33 +83,37 @@ class Reports {
 		}));
 
 		let accumulator = _.mapValues(rows, row => ({}));
+		let meta = _.mapValues(rows, row => ({}));
 
 		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
 				_.forEach(rows, (row, index) => {
 					let key = row.key;
+					let meta_key = row.meta;
 					let {
 						group,
 						filter
 					} = fns[index];
 
 					_.forEach(data, (data_row) => {
-							if (!filter(data_row)) return true;
+						if (!filter(data_row)) return true;
+						let group_index = group(data_row);
 
-							let group_index = group(data_row);
-							if (!accumulator[index][group_index]) accumulator[index][group_index] = [];
+						_.update(accumulator, [index, group_index], (n) => n ? (n.push(data_row[key]) && n) : [data_row[key]]);
+						if (meta_key) _.update(meta, [index, group_index], (n) => n ? (n.push(data_row[meta_key]) && n) : [data_row[meta_key]]);
+					})
 
-							accumulator[index][group_index].push(data_row[key]);
-						})
-						// console.log(accumulator);
 				})
 			}).finally(() => {
 
 				let result = _.mapValues(rows, (row, index) => {
-					return _.mapValues(accumulator[index], (d) => ({
-						value: fns[index].aggregator(d),
-						meta: {}
-					}));
+					if (table.params[index].meta) {
+						return _.mapValues(accumulator[index], (d, p) => ({
+							value: fns[index].aggregator(d),
+							meta: _.get(meta, [index, p])
+						}));
+					}
+					return _.mapValues(accumulator[index], fns[index].aggregator);
 				});
 
 				resolve(result);
@@ -118,7 +122,10 @@ class Reports {
 
 		return result;
 	}
-
+	actionGetTableTemplate() {
+		//@NOTE: get template from DB
+		//return Template_Object
+	}
 
 
 }
