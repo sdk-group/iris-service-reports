@@ -49,24 +49,12 @@ class Reports {
 		this.tickets.initContent();
 	}
 	launch() {
-		var time = process.hrtime();
-
-		this.actionGetTable({
-			table: table_draft
-		}).then(d => {
-
-			var diff = process.hrtime(time);
-
-			console.log('request took %d msec', (diff[0] * 1e9 + diff[1]) / 1000000);
-		});
-
 		return Promise.resolve(true);
 	}
 
 	//API
 	actionGetTable({
-		table,
-		workstation
+		table
 	}) {
 		let rows = table.params;
 		let entity_name = table.entity;

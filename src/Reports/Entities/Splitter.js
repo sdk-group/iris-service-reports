@@ -30,13 +30,13 @@ let Splitter = {
 	},
 	"minute": function (interval, date) {
 		let now = moment.utc(date);
-		return _.floor((now.hour() * 60 + now.minute()) / interval);
+		return _.padStart(_.floor((now.hour() * 60 + now.minute()) / interval), 4, '0');
 	},
 	"month-day": function (date) {
-		return moment.utc(date).date();
+		return moment.utc(date).format('DD');
 	},
 	"month": function (date) {
-		return moment.utc(date).month();
+		return moment.utc(date).format('MM');
 	},
 	"week-day": function (date) {
 		return moment.utc(date).day();
