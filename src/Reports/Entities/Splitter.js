@@ -20,11 +20,11 @@ let Splitter = {
 		return (t) => this.minute(interval, t);
 	},
 	build(functions, fields) {
-		let composer = (data) => _.map(functions, (f, index) => {
+		let composer = _.isEmpty(functions) ? (() => 'nogroup') : ((data) => _.map(functions, (f, index) => {
 			let field_name = fields[index];
 			let value = field_name ? data[field_name] : data;
 			return f(value);
-		}).join(group_delimiter);
+		}).join(group_delimiter));
 
 		return composer;
 	},

@@ -52,8 +52,9 @@ class Reports {
 					_.forEach(data, (data_row) => {
 						if (!filter(data_row)) return true;
 						let group_index = group(data_row);
+						let exported = key ? data_row[key] : 1;
 
-						_.update(accumulator, [index, group_index], (n) => n ? (n.push(data_row[key]) && n) : [data_row[key]]);
+						_.update(accumulator, [index, group_index], (n) => n ? (n.push(exported) && n) : [exported]);
 						if (meta_key) _.update(meta, [index, group_index], (n) => n ? (n.push(data_row[meta_key]) && n) : [data_row[meta_key]]);
 					})
 

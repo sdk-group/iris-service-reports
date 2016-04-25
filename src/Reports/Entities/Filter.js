@@ -14,15 +14,23 @@ composer.prototype.filter = function (d) {
 	return _.reduce(this.fns, (a, f) => a = a && f(d), true)
 };
 
+function getSpecificFilter(type) {
+	return require(`./${type}/Filter.js`);
+}
+
 let Filter = {
 	compose(type, names) {
 		if (_.isEmpty(names)) return () => true;
 
-		let filters_functions = _.map(names, desc => this.isCondition(desc) ? this.parse(desc) : this.discover(entity, desc));
+		let filters_functions = _.map(names, desc => this.isCondition(desc) ? this.parse(desc) : this.discover(type, desc));
 
 		return (d) => _.reduce(filters_functions, (a, f) => a = a && f(d), true);
 	},
-	discover(type, name) {},
+	discover(type, name) {
+		let available_filters = getSpecificFilter(type);
+		console.log(available_filters[name]);
+		return available_filters[name];
+	},
 	isCondition(desc) {
 		let result = false;
 		_.forEach(operations, op => {
