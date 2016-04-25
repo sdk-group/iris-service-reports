@@ -1,39 +1,11 @@
 'use strict'
+
 let emitter = require("global-queue");
 let TicketApi = require('resource-management-framework').TicketApi;
 
 let moment = require('moment-timezone');
 
 require('moment-range');
-
-//@NOTE: it's draft
-let table_draft = {
-	interval: ["2016-04-07", "2016-04-14"],
-	entity: "Ticket",
-	interval_field: "dedicated_date",
-	department: ['department-1', 'department-2'],
-	params: [{
-		label: "Param 1",
-		key: "id",
-		group: [{
-			method: 'month',
-			field: 'booking_date'
-		}, {
-			method: 'month-day',
-			field: 'booking_date'
-		}, {
-			method: '60min',
-			field: 'booking_date'
-		}, {
-			method: 'enum',
-			field: "org_destination"
-		}],
-		aggregator: "count", //String const
-		filter: [],
-		meta: 'id'
-	}]
-};
-
 
 let Splitters = require('./Entities/Splitter.js');
 let Filters = require('./Entities/Filter.js');
@@ -44,10 +16,7 @@ class Reports {
 	constructor() {
 		this.emitter = emitter;
 	}
-	init(config) {
-		this.tickets = new TicketApi();
-		this.tickets.initContent();
-	}
+	init(config) {}
 	launch() {
 		return Promise.resolve(true);
 	}
@@ -63,9 +32,9 @@ class Reports {
 
 		source.setInterval(table.interval)
 			.setDepartments(table.department);
+		let group = Splitters.compose(entity_name, table.group);
 
 		let fns = _.mapValues(rows, row => ({
-			group: Splitters.compose(entity_name, row.group),
 			filter: Filters.compose(entity_name, row.filter),
 			aggregator: Aggregators.get(entity_name, row.aggregator)
 		}));
@@ -78,10 +47,7 @@ class Reports {
 				_.forEach(rows, (row, index) => {
 					let key = row.key;
 					let meta_key = row.meta;
-					let {
-						group,
-						filter
-					} = fns[index];
+					let filter = _.get(fns, [index, 'filter']);
 
 					_.forEach(data, (data_row) => {
 						if (!filter(data_row)) return true;
