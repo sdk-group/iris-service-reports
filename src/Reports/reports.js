@@ -25,6 +25,7 @@ class Reports {
 	actionGetTable({
 		table
 	}) {
+		var time = process.hrtime();
 		let rows = table.params;
 		let entity_name = table.entity;
 
@@ -68,6 +69,9 @@ class Reports {
 							meta: _.get(meta, [index, p])
 						}));
 					}
+					var diff = process.hrtime(time);
+					console.log('table took %d msec', (diff[0] * 1e9 + diff[1]) / 1000000);
+
 					return _.mapValues(accumulator[index], fns[index].aggregator);
 				});
 
