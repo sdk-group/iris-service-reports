@@ -40,8 +40,8 @@ class Reports {
 			aggregator: Aggregators.get(entity_name, row.aggregator)
 		}));
 
-		let accumulator = _.mapValues(rows, row => ({}));
-		let meta = _.mapValues(rows, row => ({}));
+		let accumulator = {};
+		let meta = {};
 
 		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
@@ -55,24 +55,23 @@ class Reports {
 						let group_index = group(data_row);
 						let exported = key ? data_row[key] : 1;
 
-						_.update(accumulator, [index, group_index], (n) => n ? (n.push(exported) && n) : [exported]);
-						if (meta_key) _.update(meta, [index, group_index], (n) => n ? (n.push(data_row[meta_key]) && n) : [data_row[meta_key]]);
+						_.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
+						if (meta_key) _.updateWith(meta, [group_index, index], (n) => n ? (n.push(data_row[meta_key]) && n) : [data_row[meta_key]], Object);
 					})
 
 				})
 			}).finally(() => {
-
-				let result = _.mapValues(rows, (row, index) => {
-					if (table.params[index].meta) {
-						return _.mapValues(accumulator[index], (d, p) => ({
-							value: fns[index].aggregator(d),
-							meta: _.get(meta, [index, p])
-						}));
-					}
+				let result = _.mapValues(accumulator, (group, group_index) => {
 					var diff = process.hrtime(time);
 					console.log('table took %d msec', (diff[0] * 1e9 + diff[1]) / 1000000);
 
-					return _.mapValues(accumulator[index], fns[index].aggregator);
+					return _.mapValues(group, (d, param_index) => {
+						let value = fns[param_index].aggregator(d);
+						return table.params[param_index].meta ? {
+							value: value,
+							meta: _.get(meta, [group, index])
+						} : value;
+					});
 				});
 
 				resolve(result);
