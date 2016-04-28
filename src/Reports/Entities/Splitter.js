@@ -39,7 +39,7 @@ let Splitter = {
 		return moment.utc(date).format('MM');
 	},
 	"week-day": function (date) {
-		return moment.utc(date).day();
+		return moment.utc(date).format('do');
 	},
 	"enum": function (field) {
 		return field.toString();
