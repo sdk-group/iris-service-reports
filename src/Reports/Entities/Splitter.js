@@ -33,7 +33,7 @@ let Splitter = {
 		return _.padStart(_.floor((now.hour() * 60 + now.minute()) / interval), 4, '0');
 	},
 	"month-day": function (date) {
-		return moment.utc(date).format('DD');
+		return moment.utc(date).format('Do');
 	},
 	"month": function (date) {
 		return moment.utc(date).format('MM');
