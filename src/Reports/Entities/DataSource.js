@@ -88,23 +88,17 @@ class Source {
 		var chunktime = process.hrtime();
 		main_bucket.getMulti(_.map(keys, k => `counter-${k}`)).then(d => {
 				return d;
-			}).then(data => _.reduce(data, (a, d, n) => {
+			}).then(data => _.flatten(_.reduce(data, (a, d, n) => {
 				if (!!d.value) {
 					let key = n.slice(8);
 					a.push(_.map(_.range(d.value), (num) => `${key}${delimiter}${num}`))
 				}
 				return a;
-			}, []))
-			.then(d => _.flatten(d))
-			.then(d => {
-				console.log(d.length);
-				return d;
-			})
+			}, [])))
 			.then(d => main_bucket.getMulti(d))
 			.then(d => {
-				console.log(_.size(d));
 				var chdiff = process.hrtime(chunktime);
-				console.log('chunk took %d msec', (chdiff[0] * 1e9 + chdiff[1]) / 1000000);
+				console.log('chunk of %s took %d msec', _.size(d), (chdiff[0] * 1e9 + chdiff[1]) / 1000000);
 				return d;
 			})
 			.then(callback)

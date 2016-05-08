@@ -60,7 +60,7 @@ class Reports {
 					})
 				})
 				var chdiff = process.hrtime(chunktime);
-				console.log('chunk took %d msec', (chdiff[0] * 1e9 + chdiff[1]) / 1000000);
+				console.log('processing took %d msec', (chdiff[0] * 1e9 + chdiff[1]) / 1000000);
 			}).finally(() => {
 				let result = _.mapValues(accumulator, (group, group_index) => _.mapValues(group, (d, param_index) => {
 					let value = fns[param_index].aggregator(d);
