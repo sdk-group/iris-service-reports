@@ -45,15 +45,19 @@ class Reports {
 
 		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
+
 				var chunktime = process.hrtime();
 				_.forEach(rows, (row, index) => {
 					let key = row.key;
 					let meta_key = row.meta;
 					let filter = _.get(fns, [index, 'filter']);
 
-					_.forEach(data, (data_row) => {
-						if (!filter(data_row)) return true;
+					_.forEach(data, (a) => {
+						let data_row = a.value;
+						// console.log(data_row['@id']);
+						if (!data_row || !filter(data_row)) return true;
 						let group_index = group(data_row);
+
 						let exported = key ? data_row[key] : 1;
 						_.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
 						if (meta_key) _.updateWith(meta, [group_index, index], (n) => n ? (n.push(data_row[meta_key]) && n) : [data_row[meta_key]], Object);
