@@ -28,7 +28,6 @@ let Filter = {
 	},
 	discover(type, name) {
 		let available_filters = getSpecificFilter(type);
-		console.log(available_filters[name]);
 		return available_filters[name];
 	},
 	isCondition(desc) {
@@ -55,8 +54,6 @@ let Filter = {
 			field,
 			value
 		} = this.extractFieldAndValue(operation, condition);
-
-		console.log(operation, field, value);
 
 		switch (operation) {
 		case '=':

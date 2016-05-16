@@ -36,12 +36,17 @@ let Splitter = {
 		return _.padStart(_.floor((now.hour() * 60 + now.minute()) / interval), 4, '0');
 	},
 	"month-day": function (date) {
+		//@NOTE: dirty Oren hack
+
+		if (!~date.indexOf('+05:00')) date += 'T19:00:00+05:00';
 		return moment.parseZone(date).format('DD');
 	},
 	"month": function (date) {
+		if (!~date.indexOf('+05:00')) date += 'T19:00:00+05:00';
 		return moment.parseZone(date).format('MM');
 	},
 	"week-day": function (date) {
+		if (!~date.indexOf('+05:00')) date += 'T19:00:00+05:00';
 		return moment.parseZone(date).format('d');
 	},
 	"enum": function (field) {

@@ -4,8 +4,8 @@
 let RDFcb = require("cbird-rdf").RD;
 let cfg = {
 	"couchbird": {
-		"server_ip": "194.226.171.100",
-		"n1ql": "194.226.171.100:8093"
+		"server_ip": "194.226.171.146",
+		"n1ql": "194.226.171.146:8093"
 	},
 	"buckets": {
 		"main": "rdf",
@@ -17,7 +17,6 @@ let cfg = {
 let db = new RDFcb(cfg.couchbird);
 let main_bucket = db.bucket(cfg.buckets.main);
 /*@NOTE: test*/
-
 
 let message_bus = require('global-queue');
 
@@ -86,18 +85,21 @@ class Source {
 			keys.push(makeKey(dept, d));
 		}));
 		var chunktime = process.hrtime();
-		main_bucket.getMulti(_.map(keys, k => `counter-${k}`)).then(d => {
-				return d;
-			}).then(data => _.flatten(_.reduce(data, (a, d, n) => {
-				if (!!d.value) {
-					let key = n.slice(8);
-					a.push(_.map(_.range(d.value), (num) => `${key}${delimiter}${num}`))
-				}
-				return a;
-			}, [])))
+		console.log('keys', _.map(keys, k => `counter-${k}`));
+		main_bucket.getMulti(_.map(keys, k => `counter-${k}`)).then(data => {
+				console.log(data);
+				return _.flatten(_.reduce(data, (a, d, n) => {
+					if (!!d.value) {
+						let key = n.slice(8);
+						a.push(_.map(_.range(d.value + 1), (num) => `${key}${delimiter}${num}`))
+					}
+					return a;
+				}, []))
+			})
 			.then(d => main_bucket.getMulti(d))
 			.then(d => {
 				var chdiff = process.hrtime(chunktime);
+
 				console.log('chunk of %s took %d msec', _.size(d), (chdiff[0] * 1e9 + chdiff[1]) / 1000000);
 				return d;
 			})
@@ -144,7 +146,6 @@ class Source {
 				keys
 			})
 			.then((res) => {
-				// console.log("RES Q", res, query);
 				return _.values(res);
 			});
 	}
