@@ -3,16 +3,29 @@
 const group_delimiter = '::';
 const name_delimiter = '--';
 
+function getSpecificSplitter(type) {
+	return require(`./${type}/Splitter.js`);
+}
+
 let Splitter = {
 	compose(type, groups) {
 		let names = _.map(groups, 'method');
 		let fields = _.map(groups, 'field');
 		let functions = _.map(names, name => this.discover(type, name));
 
-		return this.build(functions, fields, names);
+		return this.build(functions, fields, this.transformNames(names, fields));
+	},
+	transformNames(names, fields) {
+		console.log(names, fields);
+		return _.map(names, (name, index) => name == 'enum' ? 'enum-' + fields[index] : name)
 	},
 	discover(type, name) {
 		//@TODO: discover by type
+		let specific = getSpecificSplitter(type);
+
+		if (specific && specific.discover(name)) {
+			return specific.discover(name);
+		}
 
 		if (_.isNaN(parseInt(name, 10))) {
 			return this[name];
@@ -32,21 +45,26 @@ let Splitter = {
 		return composer;
 	},
 	"minute": function (interval, date) {
+
 		let now = moment.parseZone(date);
 		return _.padStart(_.floor((now.hour() * 60 + now.minute()) / interval), 4, '0');
 	},
 	"month-day": function (date) {
 		//@NOTE: dirty Oren hack
-
-		if (!~date.indexOf('+05:00')) date += 'T19:00:00+05:00';
+		//@NOTE: timezone check
+		if (!~date.indexOf('+')) return moment.utc(date).format('DD');
 		return moment.parseZone(date).format('DD');
 	},
 	"month": function (date) {
-		if (!~date.indexOf('+05:00')) date += 'T19:00:00+05:00';
+		//@NOTE: dirty Oren hack
+		//@NOTE: timezone check
+		if (!~date.indexOf('+')) return moment.utc(date).format('MM');
 		return moment.parseZone(date).format('MM');
 	},
 	"week-day": function (date) {
-		if (!~date.indexOf('+05:00')) date += 'T19:00:00+05:00';
+		//@NOTE: dirty Oren hack
+		//@NOTE: timezone check
+		if (!~date.indexOf('+')) return moment.utc(date).format('d');
 		return moment.parseZone(date).format('d');
 	},
 	"enum": function (field) {

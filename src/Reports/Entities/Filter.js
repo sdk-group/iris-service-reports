@@ -78,7 +78,7 @@ let Filter = {
 			fn = (x) => x[field] != value;
 			break;
 		case 'in':
-			fn = (x) => !!~value.indexOf(x[field]);
+			fn = (x) => !!~value.split(',').indexOf(x[field]);
 			break;
 		default:
 			throw new Error(`Unknown operation ${operation}`);

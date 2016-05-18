@@ -1,20 +1,15 @@
 'use strict'
 
 /*@NOTE: test*/
+//@FIXIT: completly rewrite all DataSource and stuff
 let RDFcb = require("cbird-rdf").RD;
 let cfg = {
-	"couchbird": {
-		"server_ip": "194.226.171.146",
-		"n1ql": "194.226.171.146:8093"
-	},
 	"buckets": {
-		"main": "rdf",
-		"auth": "ss",
-		"history": "rdf"
-	},
-	"filename": "./output.json"
+		"main": "rdf"
+	}
 };
-let db = new RDFcb(cfg.couchbird);
+
+let db = new RDFcb( /*empty*/ );
 let main_bucket = db.bucket(cfg.buckets.main);
 /*@NOTE: test*/
 
@@ -35,43 +30,6 @@ class Source {
 		this.departments = _.castArray(value);
 		return this;
 	}
-
-	// parse(callback) {
-	//
-	// 	let response_counter = 0;
-	// 	let days = this.getDays();
-	// 	let set = [];
-	// 	let first_date = _.head(days);
-	// 	let last_date = _.last(days);
-	//
-	// 	_.forEach(days, d => _.forEach(this.departments, dept => set.push({
-	// 		day: d,
-	// 		department: dept
-	// 	})));
-	// 	//@TODO: use here iterator, not array
-	// 	// console.log(set);
-	//
-	// 	Promise.map(set, item => this.getTickets({
-	// 			query: {
-	// 				dedicated_date: item.day,
-	// 				org_destination: item.department
-	// 			}
-	// 		})
-	// 		.then((data) => {
-	// 			if (item.day == first_date) return this._preFilter(data, first_date);
-	// 			if (item.day == last_date) return this._postFilter(data, last_date);
-	// 			return data;
-	// 		})
-	// 		.then(callback)
-	// 		.then(() => {
-	// 			if ((response_counter += 1) == (days.length * this.departments.length)) this.final();
-	//
-	// 			return true;
-	// 		}));
-	//
-	// 	return this;
-	// }
-
 	parse(callback) {
 		let response_counter = 0;
 		let days = this.getDays();
@@ -84,10 +42,8 @@ class Source {
 		_.forEach(days, d => _.forEach(this.departments, dept => {
 			keys.push(makeKey(dept, d));
 		}));
-		var chunktime = process.hrtime();
-		console.log('keys', _.map(keys, k => `counter-${k}`));
+
 		main_bucket.getMulti(_.map(keys, k => `counter-${k}`)).then(data => {
-				console.log(data);
 				return _.flatten(_.reduce(data, (a, d, n) => {
 					if (!!d.value) {
 						let key = n.slice(8);
@@ -97,12 +53,6 @@ class Source {
 				}, []))
 			})
 			.then(d => main_bucket.getMulti(d))
-			.then(d => {
-				var chdiff = process.hrtime(chunktime);
-
-				console.log('chunk of %s took %d msec', _.size(d), (chdiff[0] * 1e9 + chdiff[1]) / 1000000);
-				return d;
-			})
 			.then(callback)
 			.then(() => {
 				this.final();
