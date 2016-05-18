@@ -16,7 +16,6 @@ let Splitter = {
 		return this.build(functions, fields, this.transformNames(names, fields));
 	},
 	transformNames(names, fields) {
-		console.log(names, fields);
 		return _.map(names, (name, index) => name == 'enum' ? 'enum-' + fields[index] : name)
 	},
 	discover(type, name) {

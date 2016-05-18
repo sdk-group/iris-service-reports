@@ -45,7 +45,6 @@ class Reports {
 
 		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
-				var chunktime = process.hrtime();
 				_.forEach(data, (a) => {
 					let data_row = a.value;
 					if (!data_row) return true;
@@ -63,8 +62,7 @@ class Reports {
 						if (meta_key) _.updateWith(meta, [group_index, index], (n) => n ? (n.push(data_row[meta_key]) && n) : [data_row[meta_key]], Object);
 					})
 				})
-				var chdiff = process.hrtime(chunktime);
-				console.log('processing took %d msec', (chdiff[0] * 1e9 + chdiff[1]) / 1000000);
+
 			}).finally(() => {
 				let result = _.mapValues(accumulator, (group, group_index) => _.mapValues(group, (d, param_index) => {
 					let value = fns[param_index].aggregator(d);
@@ -73,9 +71,6 @@ class Reports {
 						meta: _.get(meta, [group, index])
 					} : value;
 				}));
-
-				var diff = process.hrtime(time);
-				console.log('table took %d msec', (diff[0] * 1e9 + diff[1]) / 1000000);
 
 				resolve(result);
 			});
