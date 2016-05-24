@@ -4,7 +4,7 @@
 // 	return (result) => _.reduce(fns, (a, f) => f.call(this, a), result);
 // };
 
-const operations = ['===', '<=', '>=', '!=', '=', '<', '>', 'in'];
+const operations = ['===', '<=', '>=', '!=', '=', '<', '>', ' in ', ' OR '];
 
 let composer = function (fns) {
 	this.fns = fns;
@@ -22,11 +22,13 @@ let Filter = {
 	compose(type, names) {
 		if (_.isEmpty(names)) return () => true;
 
-		let filters_functions = _.map(names, desc => this.isCondition(desc) ? this.parse(desc) : this.discover(type, desc));
+		let filters_functions = _.map(names, desc => this.discover(type, desc));
 
 		return (d) => _.reduce(filters_functions, (a, f) => a = a && f(d), true);
 	},
 	discover(type, name) {
+		if (this.isCondition(name)) return this.parse(type, name);
+
 		let available_filters = getSpecificFilter(type);
 		return available_filters[name];
 	},
@@ -40,7 +42,7 @@ let Filter = {
 
 		return result;
 	},
-	parse(condition) {
+	parse(type, condition) {
 		let operation = 'nope';
 		let fn;
 		_.forEach(operations, op => {
@@ -77,8 +79,14 @@ let Filter = {
 		case '!=':
 			fn = (x) => x[field] != value;
 			break;
-		case 'in':
+		case ' in ':
 			fn = (x) => !!~value.split(',').indexOf(x[field]);
+			break;
+		case ' OR ':
+			let first = this.discover(type, field);
+			let sec = this.discover(type, value);
+
+			fn = (x) => first || sec;
 			break;
 		default:
 			throw new Error(`Unknown operation ${operation}`);
