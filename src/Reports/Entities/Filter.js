@@ -23,8 +23,8 @@ let Filter = {
 		if (_.isEmpty(names)) return () => true;
 
 		let filters_functions = _.map(names, desc => this.discover(type, desc));
-
-		return (d) => _.reduce(filters_functions, (a, f) => a = a && f(d), true);
+		console.log(names, filters_functions);
+		return (d) => _.reduce(filters_functions, (a, f) => a && f(d), true);
 	},
 	discover(type, name) {
 		if (this.isCondition(name)) return this.parse(type, name);
@@ -86,7 +86,7 @@ let Filter = {
 			let first = this.discover(type, field);
 			let sec = this.discover(type, value);
 
-			fn = (x) => first || sec;
+			fn = (x) => first(x) || sec(x);
 			break;
 		default:
 			throw new Error(`Unknown operation ${operation}`);
