@@ -13,75 +13,79 @@ let Aggregators = require('./Entities/Aggregator.js');
 let DataSource = require('./Entities/DataSource.js');
 
 class Reports {
-	constructor() {
-		this.emitter = emitter;
-	}
-	init(config) {}
-	launch() {
-		return Promise.resolve(true);
-	}
+  constructor() {
+    this.emitter = emitter;
+  }
+  init(config) {}
+  launch() {
+    return Promise.resolve(true);
+  }
 
-	//API
-	actionGetTable({
-		table
-	}) {
-		var time = process.hrtime();
-		let rows = table.params;
-		let entity_name = table.entity;
+  //API
+  actionGetTable({
+    table
+  }) {
+    var time = process.hrtime();
+    let rows = table.params;
+    let entity_name = table.entity;
 
-		let source = DataSource.discover(entity_name, table.interval_field);
+    let source = DataSource.discover(entity_name, table.interval_field);
 
-		source.setInterval(table.interval)
-			.setDepartments(table.department);
-		let group = Splitters.compose(entity_name, table.group);
+    source.setInterval(table.interval)
+      .setDepartments(table.department);
+    let group = Splitters.compose(entity_name, table.group);
 
-		let fns = _.mapValues(rows, row => ({
-			filter: Filters.compose(entity_name, row.filter),
-			aggregator: Aggregators.get(entity_name, row.aggregator)
-		}));
+    let fns = _.mapValues(rows, row => ({
+      filter: Filters.compose(entity_name, row.filter),
+      aggregator: Aggregators.get(entity_name, row.aggregator)
+    }));
 
-		let accumulator = {};
-		let meta = {};
+    let accumulator = {};
+    let meta = {};
 
-		let result = new Promise(function (resolve, reject) {
-			source.parse((data) => {
-				_.forEach(data, (a) => {
-					let data_row = a.value;
-					if (!data_row) return true;
+    let result = new Promise(function(resolve, reject) {
+      source.parse((data) => {
+        _.forEach(data, (a) => {
+          let data_row = a.value;
+          if (!data_row) return true;
 
-					let group_index = group(data_row);
+          let group_index = group(data_row);
 
-					_.forEach(rows, (row, index) => {
-						let key = row.key;
-						let meta_key = row.meta;
-						let filter = _.get(fns, [index, 'filter']);
-						if (!filter(data_row)) return true;
+          _.forEach(rows, (row, index) => {
+            let key = row.key;
+            let meta_key = row.meta;
+            let filter = _.get(fns, [index, 'filter']);
 
-						let exported = key ? data_row[key] : 1;
-						_.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
-						if (meta_key) _.updateWith(meta, [group_index, index], (n) => n ? (n.push(data_row[meta_key]) && n) : [data_row[meta_key]], Object);
-					})
-				})
+            if (!filter(data_row)) return true;
 
-			}).finally(() => {
-				let result = _.mapValues(accumulator, (group, group_index) => _.mapValues(group, (d, param_index) => {
-					let value = fns[param_index].aggregator(d);
-					return table.params[param_index].meta ? {
-						value: value,
-						meta: _.get(meta, [group, index])
-					} : value;
-				}));
+            let exported = key ? data_row[key] : 1;
+            _.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
+            if (meta_key) {
+              let fields = _.pick(data_row, _.castArray(meta_key));
+              _.updateWith(meta, [group_index, index], (n) => n ? (n.push(fields) && n) : [fields], Object);
+            }
+          })
+        })
 
-				resolve(result);
-			});
-		});
+      }).finally(() => {
+        let result = _.mapValues(accumulator, (group, group_index) => _.mapValues(group, (d, param_index) => {
+          let value = fns[param_index].aggregator(d);
+          return table.params[param_index].meta ? {
+            value: value,
+            meta: _.get(meta, [group_index, param_index])
+          } : value;
+        }));
 
-		return result;
-	}
-	actionGetTableTemplate() {
-		//@NOTE: get template from DB
-		//return Template_Object
-	}
+        resolve(result);
+      });
+    });
+
+    return result;
+  }
+  actionGetTableTemplate() {
+    //@NOTE: get template from DB
+    //return Template_Object
+  }
 
 
 }
