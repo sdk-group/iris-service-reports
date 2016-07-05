@@ -11,81 +11,95 @@ let Splitters = require('./Entities/Splitter.js');
 let Filters = require('./Entities/Filter.js');
 let Aggregators = require('./Entities/Aggregator.js');
 let DataSource = require('./Entities/DataSource.js');
+let Transform = require('./Entities/Transform.js');
 
 class Reports {
-  constructor() {
-    this.emitter = emitter;
-  }
-  init(config) {}
-  launch() {
-    return Promise.resolve(true);
-  }
+	constructor() {
+		this.emitter = emitter;
+	}
+	init(config) {}
+	launch() {
+		return Promise.resolve(true);
+	}
 
-  //API
-  actionGetTable({
-    table
-  }) {
-    var time = process.hrtime();
-    let rows = table.params;
-    let entity_name = table.entity;
+	//API
+	actionBootstrap() {
+		console.log('Reports');
 
-    let source = DataSource.discover(entity_name, table.interval_field);
+		return Promise.resolve(true);
+	}
+	actionReady() {
+		return Promise.resolve(true);
+	}
+	actionGetTable({
+		table
+	}) {
+		var time = process.hrtime();
+		let rows = table.params;
+		let entity_name = table.entity;
 
-    source.setInterval(table.interval)
-      .setDepartments(table.department);
-    let group = Splitters.compose(entity_name, table.group);
+		let source = DataSource.discover(entity_name, table.interval_field);
 
-    let fns = _.mapValues(rows, row => ({
-      filter: Filters.compose(entity_name, row.filter),
-      aggregator: Aggregators.get(entity_name, row.aggregator)
-    }));
+		source.setInterval(table.interval)
+			.setDepartments(table.department);
+		let group = Splitters.compose(entity_name, table.group);
 
-    let accumulator = {};
-    let meta = {};
+		let fns = _.mapValues(rows, row => ({
+			filter: Filters.compose(entity_name, row.filter),
+			aggregator: Aggregators.get(entity_name, row.aggregator),
+			transform: Transform.compose(entity_name, row.transform)
+		}));
 
-    let result = new Promise(function(resolve, reject) {
-      source.parse((data) => {
-        _.forEach(data, (a) => {
-          let data_row = a.value;
-          if (!data_row) return true;
+		let accumulator = {};
+		let meta = {};
 
-          let group_index = group(data_row);
+		let result = new Promise(function (resolve, reject) {
+			source.parse((data) => {
+				_.forEach(data, (a) => {
 
-          _.forEach(rows, (row, index) => {
-            let key = row.key;
-            let meta_key = row.meta;
-            let filter = _.get(fns, [index, 'filter']);
+					let data_row = a.value;
+					if (!data_row) return true;
 
-            if (!filter(data_row)) return true;
+					let group_index = group(data_row);
 
-            let exported = key ? data_row[key] : 1;
-            _.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
-            if (meta_key) {
-              let fields = _.pick(data_row, _.castArray(meta_key));
-              _.updateWith(meta, [group_index, index], (n) => n ? (n.push(fields) && n) : [fields], Object);
-            }
-          })
-        })
+					_.forEach(rows, (row, index) => {
+						let key = row.key;
+						let meta_key = row.meta;
+						let transform = _.get(fns, [index, 'transform']);
+						let filter = _.get(fns, [index, 'filter']);
 
-      }).finally(() => {
-        let result = _.mapValues(accumulator, (group, group_index) => _.mapValues(group, (d, param_index) => {
-          let value = fns[param_index].aggregator(d);
-          return table.params[param_index].meta ? {
-            value: value,
-            meta: _.get(meta, [group_index, param_index])
-          } : value;
-        }));
+						if (transform) transform(data_row);
 
-        resolve(result);
-      });
-    });
+						if (!filter(data_row)) return true;
 
-    return result;
-  }
-  actionGetTableTemplate() {
-    //@NOTE: get template from DB
-    //return Template_Object
-  }
+						let exported = key ? data_row[key] : 1;
+						_.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
+						if (meta_key) {
+							let fields = _.pick(data_row, _.castArray(meta_key));
+							_.updateWith(meta, [group_index, index], (n) => n ? (n.push(fields) && n) : [fields], Object);
+						}
+					})
+				})
+
+			}).finally(() => {
+				let result = _.mapValues(accumulator, (group, group_index) => _.mapValues(group, (d, param_index) => {
+					let value = fns[param_index].aggregator(d);
+					return table.params[param_index].meta ? {
+						value: value,
+						meta: _.get(meta, [group_index, param_index])
+					} : value;
+				}));
+
+				resolve(result);
+			});
+		});
+
+		return result;
+	}
+	actionGetTableTemplate() {
+		//@NOTE: get template from DB
+		//return Template_Object
+	}
 
 
 }
