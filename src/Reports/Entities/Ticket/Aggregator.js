@@ -22,8 +22,11 @@ function secondsToTime(secs) {
 
 let TicketAggregator = {
 	'averageTime': function (data_array) {
-
-		return secondsToTime(_.reduce(data_array, (s, d) => s + d, 0) / data_array.length / 1000);
+		let sec = this.averageTimeInSeconds(data_array);
+		return secondsToTime(sec);
+	},
+	'averageTimeInSeconds': function (data_array) {
+		return _.reduce(data_array, (s, d) => s + d, 0) / data_array.length / 1000;
 	},
 	'maxTime': function (data_array) {
 		return secondsToTime(_.max(data_array) / 1000);
