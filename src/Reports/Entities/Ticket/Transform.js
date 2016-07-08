@@ -5,7 +5,10 @@ let _ = require('lodash');
 let TicketTransforms = {
 	waitingTime(ticket) {
 		var register = _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
-		var call = _.find(ticket.history, ['event_name', 'call']);
+		var call = _.find(ticket.history, ['event_name', 'call']) || {
+			time: Date.now()
+		};
+
 		if (!register || !call) {
 			ticket.waitingTime = -1;
 			return;
