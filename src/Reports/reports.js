@@ -13,11 +13,20 @@ let Aggregators = require('./Entities/Aggregator.js');
 let DataSource = require('./Entities/DataSource.js');
 let Transform = require('./Entities/Transform.js');
 
+let RDFcb = require("cbird-rdf").RD;
+
+let db = new RDFcb();
+
+
 class Reports {
 	constructor() {
 		this.emitter = emitter;
 	}
-	init(config) {}
+	init(config) {
+		console.log(config);
+		let bucket_name = config.default_bucket || "rdf";
+		DataSource.setDefaultBucket(db.bucket(bucket_name));
+	}
 	launch() {
 		return Promise.resolve(true);
 	}
