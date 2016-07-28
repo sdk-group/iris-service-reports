@@ -40,7 +40,7 @@ class Source {
 
 		main_bucket.getMulti(_.map(keys, k => `counter-${k}`)).then(data => {
 				return _.flatten(_.reduce(data, (a, d, n) => {
-					if (!!d.value) {
+					if (_.isNumber(d.value)) {
 						let key = n.slice(8);
 						a.push(_.map(_.range(d.value + 1), (num) => `${key}${delimiter}${num}`))
 					}
