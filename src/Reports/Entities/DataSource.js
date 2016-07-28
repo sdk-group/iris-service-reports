@@ -1,12 +1,9 @@
 'use strict'
 
-/*@NOTE: test*/
-//@FIXIT: completly rewrite all DataSource and stuff
-let RDFcb = require("cbird-rdf").RD;
 
-let db = new RDFcb();
-let main_bucket = db.bucket("rdf");
-/*@NOTE: test*/
+//@FIXIT: completly rewrite all DataSource and stuff
+
+
 
 let message_bus = require('global-queue');
 
@@ -16,7 +13,9 @@ let makeKey = (org, dedicated_date) => {
 };
 
 class Source {
-	constructor() {}
+	constructor(main_bucket) {
+		this.main_bucket = main_bucket;
+	}
 	setInterval(value) {
 		this.interval = value;
 		return this;
@@ -38,7 +37,7 @@ class Source {
 			keys.push(makeKey(dept, d));
 		}));
 
-		main_bucket.getMulti(_.map(keys, k => `counter-${k}`)).then(data => {
+		this.main_bucket.getMulti(_.map(keys, k => `counter-${k}`)).then(data => {
 				return _.flatten(_.reduce(data, (a, d, n) => {
 					if (_.isNumber(d.value)) {
 						let key = n.slice(8);
@@ -50,7 +49,7 @@ class Source {
 			.then(keys => {
 				let chunks = _.chunk(keys, 1000);
 
-				return Promise.map(chunks, keyset => main_bucket.getMulti(keyset).then(callback), {
+				return Promise.map(chunks, keyset => this.main_bucket.getMulti(keyset).then(callback), {
 					concurrency: 3
 				});
 			}).then(() => {
@@ -100,13 +99,16 @@ class Source {
 };
 
 let DataSource = {
+	setDefaultBucket(default_bucket) {
+		this.default_bucket = default_bucket;
+	},
 	discover(entity, interval_field) {
 		//@TEST
 		return this.ticketDataSource();
 	},
 	//@WARNING: only for tests
 	ticketDataSource(interval) {
-		let ticket_source = new Source()
+		let ticket_source = new Source(this.default_bucket)
 		return ticket_source;
 	}
 };
