@@ -1,6 +1,6 @@
 'use strict'
 
-const event_names = ['register', 'call', 'activate', 'close', 'processing', 'book', 'postpone'];
+const event_names = ['register', 'call', 'activate', 'close', 'processing', 'book', 'postpone', 'expire'];
 
 let inHistory = (ticket, event) => ~_.findIndex(ticket.history, ['event_name', event]);
 
