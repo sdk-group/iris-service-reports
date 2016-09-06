@@ -23,9 +23,10 @@ class Reports {
 		this.emitter = emitter;
 	}
 	init(config) {
-		console.log(config);
 		let bucket_name = config.default_bucket || "rdf";
 		DataSource.setDefaultBucket(db.bucket(bucket_name));
+
+		return Promise.resolve(true);
 	}
 	launch() {
 		return Promise.resolve(true);
