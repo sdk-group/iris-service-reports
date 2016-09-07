@@ -16,7 +16,7 @@ let TicketTransforms = {
 		if (register.event_name == 'activate') {
 			let time = parseInt(register.time);
 			let day_start = (new Date(time)).setHours(0, 0, 0);
-			register.time = day_start + parseInt(icket.time_description[0]);
+			register.time = day_start + ticket.time_description[0] * 1000;
 		}
 
 		if (!call && register) {
