@@ -8,8 +8,20 @@ let TicketTransforms = {
 		var register = _.findLast(ticket.history, ['event_name', 'route']) || _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
 		var call = _.find(ticket.history, ['event_name', 'call']);
 
+		if (!register) {
+			ticket.waitingTime = -1;
+			return;
+		}
+
+		if (register.event_name == 'activate') {
+			let time = parseInt(register.time);
+			let day_start = (new Date(time)).setHours(0, 0, 0);
+			register.time = day_start + parseInt(icket.time_description[0]);
+		}
+
 		if (!call && register) {
-			let day_end = (new Date(parseInt(register.time))).setHours(23, 59, 59);
+			let time = parseInt(register.time);
+			let day_end = (new Date(time)).setHours(23, 59, 59);
 			let now = Date.now();
 
 			call = now < day_end ? {
@@ -17,7 +29,7 @@ let TicketTransforms = {
 			} : false;
 		}
 
-		if (!register || !call) {
+		if (!call) {
 			ticket.waitingTime = -1;
 			return;
 		}
