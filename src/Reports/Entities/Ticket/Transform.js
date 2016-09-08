@@ -2,6 +2,7 @@
 
 let _ = require('lodash');
 
+
 let TicketTransforms = {
 	waitingTime(ticket) {
 
@@ -14,14 +15,14 @@ let TicketTransforms = {
 		}
 
 		if (register.event_name == 'activate') {
-			let time = parseInt(register.time);
-			let day_start = (new Date(time)).setHours(0, 0, 0);
-			register.time = day_start + ticket.time_description[0] * 1000;
+			let time = moment.parseZone(register.local_time);
+			let day_start = time.startOf('day').format('x');
+			register.time = parseInt(day_start) + parseInt(ticket.time_description[0] * 1000);
 		}
 
-		if (!call && register) {
-			let time = parseInt(register.time);
-			let day_end = (new Date(time)).setHours(23, 59, 59);
+		if (!call) {
+			let time = moment.parseZone(register.local_time);
+			let day_end = time.endOf('day').format('x');
 			let now = Date.now();
 
 			call = now < day_end ? {
