@@ -7,12 +7,16 @@ let TicketTransforms = {
 	waitingTime(ticket) {
 
 		var register = _.findLast(ticket.history, ['event_name', 'route']) || _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
-		var call = _.find(ticket.history, ['event_name', 'call']);
+		var call = _.findLast(ticket.history, ['event_name', 'call']);
+
 
 		if (!register) {
 			ticket.waitingTime = -1;
 			return;
 		}
+
+		//@NOTE: in case of routing
+		if (call && (call.time > register.time)) call = false;
 
 		if (register.event_name == 'activate') {
 			let time = moment.parseZone(register.local_time);
