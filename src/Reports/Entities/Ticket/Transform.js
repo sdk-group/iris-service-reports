@@ -40,6 +40,18 @@ let TicketTransforms = {
 		}
 
 		ticket.waitingTime = call.time - register.time;
+	},
+	answers(ticket) {
+		var answers = ticket.qa_answers;
+		if (!answers) return;
+		if (ticket.question0) return;
+
+		for (var key in answers) {
+			var index = key - 9;
+			var answer = (answers[key] % 5) || 5;
+			ticket['question' + index] = answer;
+		}
+
 	}
 };
 
