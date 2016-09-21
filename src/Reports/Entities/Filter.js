@@ -82,7 +82,7 @@ let Filter = {
 			fn = (x) => !!~value.split(',').indexOf(x[field]);
 			break;
 		case ' contains ':
-			fn = (x) => !!~x[field].indexOf(value);
+			fn = (x) => !!~x[field].toLowerCase().indexOf(value);
 			break;
 		case ' OR ':
 			let first = this.discover(type, field);
