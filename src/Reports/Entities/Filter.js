@@ -4,7 +4,7 @@
 // 	return (result) => _.reduce(fns, (a, f) => f.call(this, a), result);
 // };
 
-const operations = ['===', '<=', '>=', '!=', '=', '<', '>', ' in ', ' contains ', ' OR '];
+const operations = ['===', '<=', '>=', '!=', '=', '<', '>', ' in ', ' contains ', ' OR ', ' exsists'];
 
 let composer = function (fns) {
 	this.fns = fns;
@@ -80,6 +80,9 @@ let Filter = {
 			break;
 		case ' in ':
 			fn = (x) => !!~value.split(',').indexOf(x[field]);
+			break;
+		case ' exsists':
+			fn = (x) => !!x[field];
 			break;
 		case ' contains ':
 			fn = (x) => !!~x[field].toLowerCase().indexOf(value);
