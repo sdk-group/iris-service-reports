@@ -70,9 +70,7 @@ class Reports {
 					let data_row = a.value;
 					if (!data_row) return true;
 
-					let group_index = group(data_row);
-
-					if (group_index === null) return true;
+					let group_index = false;
 
 					_.forEach(rows, (row, index) => {
 						let key = row.key;
@@ -83,6 +81,8 @@ class Reports {
 						if (transform) transform(data_row);
 
 						if (!filter(data_row)) return true;
+
+						group_index = group_index || group(data_row);
 
 						let exported = key ? data_row[key] : 1;
 						_.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
