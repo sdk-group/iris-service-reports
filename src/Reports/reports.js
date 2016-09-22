@@ -63,7 +63,7 @@ class Reports {
 		let accumulator = {};
 		let meta = {};
 
-		let result = new Promise(function (resolve, reject) {
+		let result = new Promise(function(resolve, reject) {
 			source.parse((data) => {
 				_.forEach(data, (a) => {
 
@@ -71,6 +71,8 @@ class Reports {
 					if (!data_row) return true;
 
 					let group_index = group(data_row);
+
+					if (group_index === null) return true;
 
 					_.forEach(rows, (row, index) => {
 						let key = row.key;

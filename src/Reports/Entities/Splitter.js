@@ -43,31 +43,31 @@ let Splitter = {
 
 		return composer;
 	},
-	"minute": function (interval, date) {
+	"minute": function(interval, date) {
 
 		let now = moment.parseZone(date);
 		return _.padStart(_.floor((now.hour() * 60 + now.minute()) / interval), 4, '0');
 	},
-	"month-day": function (date) {
+	"month-day": function(date) {
 		//@NOTE: dirty Oren hack
 		//@NOTE: timezone check
 		if (!~date.indexOf('+')) return moment.utc(date).format('DD');
 		return moment.parseZone(date).format('DD');
 	},
-	"month": function (date) {
+	"month": function(date) {
 		//@NOTE: dirty Oren hack
 		//@NOTE: timezone check
 		if (!~date.indexOf('+')) return moment.utc(date).format('MM');
 		return moment.parseZone(date).format('MM');
 	},
-	"week-day": function (date) {
+	"week-day": function(date) {
 		//@NOTE: dirty Oren hack
 		//@NOTE: timezone check
 		if (!~date.indexOf('+')) return moment.utc(date).format('d');
 		return moment.parseZone(date).format('d');
 	},
-	"enum": function (field) {
-		return field.toString();
+	"enum": function(field) {
+		return field ? field.toString() : null;
 	}
 };
 
