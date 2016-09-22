@@ -23,7 +23,7 @@ let Aggregator = {
 		return data_array.length;
 	},
 	commonAverage(data_array) {
-		return _.reduce(data_array, (s, d) => s + d, 0) / data_array.length;
+		return _.ceil(_.reduce(data_array, (s, d) => s + d, 0) / data_array.length, 2);
 	}
 };
 
