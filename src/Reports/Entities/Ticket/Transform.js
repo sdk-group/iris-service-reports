@@ -52,6 +52,16 @@ let TicketTransforms = {
 			ticket['question' + index] = answer;
 		}
 
+
+		if (ticket.operator) return;
+		let history = ticket.history;
+		let oper = "";
+		for (var i = 0; i < history.length; i++) {
+			var entry = history[i];
+			if (entry.event_name == "qa-check") break;
+			if (entry.subject.type == "operator") oper = entry.subject.id;
+		}
+		ticket.operator = oper;
 	}
 };
 
