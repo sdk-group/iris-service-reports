@@ -48,7 +48,7 @@ class Reports {
 		let rows = table.params;
 		let entity_name = table.entity;
 
-		let source = DataSource.discover(entity_name, table.interval_field);
+		let source = DataSource.discover(entity_name, table.interval);
 
 		source.setInterval(table.interval)
 			.setDepartments(table.department);
@@ -63,7 +63,7 @@ class Reports {
 		let accumulator = {};
 		let meta = {};
 
-		let result = new Promise(function(resolve, reject) {
+		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
 				_.forEach(data, (a) => {
 

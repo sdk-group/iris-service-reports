@@ -11,9 +11,9 @@ let DataSource = {
 	setDefaultBucket(default_bucket) {
 		this.default_bucket = default_bucket;
 	},
-	discover(entity, interval_field) {
+	discover(entity, interval) {
 		//@TEST
-		return this.ticketDataSource(interval_field);
+		return this.ticketDataSource(interval);
 	},
 	//@WARNING: only for tests
 	ticketDataSource(interval) {
