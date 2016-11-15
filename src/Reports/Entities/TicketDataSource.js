@@ -9,6 +9,9 @@ class Source {
 	constructor(main_bucket) {
 		this.main_bucket = main_bucket;
 	}
+	format(a) {
+		return a.value;
+	}
 	setInterval(value) {
 		this.interval = value;
 		return this;

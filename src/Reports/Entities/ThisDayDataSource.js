@@ -12,6 +12,9 @@ class ThisDaySource {
 		this.interval = value;
 		return this;
 	}
+	format(a) {
+		return a;
+	}
 	setDepartments(value) {
 		this.departments = _.castArray(value);
 		return this;

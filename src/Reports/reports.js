@@ -63,11 +63,12 @@ class Reports {
 		let accumulator = {};
 		let meta = {};
 
+
 		let result = new Promise(function (resolve, reject) {
 			source.parse((data) => {
 				_.forEach(data, (a) => {
 
-					let data_row = a.value;
+					let data_row = source.format(a);
 					if (!data_row) return true;
 
 					let group_index = false;
