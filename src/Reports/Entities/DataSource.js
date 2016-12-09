@@ -17,7 +17,7 @@ let DataSource = {
 	},
 	//@WARNING: only for tests
 	ticketDataSource(interval) {
-		let ticket_source = interval == 'now' ? new NowSource() : new Source(this.default_bucket);
+		let ticket_source = interval === 'now' ? new NowSource() : new Source(this.default_bucket);
 		return ticket_source;
 	}
 };

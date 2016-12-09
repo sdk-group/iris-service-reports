@@ -62,6 +62,16 @@ let TicketTransforms = {
 			if (entry.subject.type == "operator") oper = entry.subject.id;
 		}
 		ticket.operator = oper;
+	},
+	concatInfoFields(ticket) {
+		let user_info = ticket.user_info;
+		let str = ""
+		for (var key in user_info) {
+			var value = user_info[key];
+			str += value + "$$";
+		}
+
+		ticket.userInfoString = str;
 	}
 };
 
