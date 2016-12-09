@@ -65,10 +65,12 @@ let TicketTransforms = {
 	},
 	concatInfoFields(ticket) {
 		let user_info = ticket.user_info;
+		let description = ticket.user_info_description || {};
 		let str = ""
 		for (var key in user_info) {
 			var value = user_info[key];
-			str += value + "$$";
+			var desc = description[key] || {};
+			if (!desc.private) str += value + "$$";
 		}
 
 		ticket.userInfoString = str;
