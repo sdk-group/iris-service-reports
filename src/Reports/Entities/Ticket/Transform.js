@@ -4,6 +4,26 @@ let _ = require('lodash');
 
 
 let TicketTransforms = {
+	processTime(ticket) {
+		var history = ticket.history;
+		var totoal = 0;
+		var start_time = 0;
+		for (var i = 0; i < history.length; i++) {
+			var item = history[i];
+			var name = item.event_name;
+			var is_start = name == 'process';
+			var is_end = is_start ? false : name == 'route' || name == 'postpone' || name == 'close' || name == 'remove';
+
+			if (is_start) {
+				start_time = itme.time;
+			} else if (is_end && start_time) {
+				total += item.time - start_time;
+				start_time = 0;
+			}
+		}
+
+		ticket.processTime = total ? total : -1;
+	}
 	waitingTime(ticket) {
 
 		var register = _.findLast(ticket.history, ['event_name', 'route']) || _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
