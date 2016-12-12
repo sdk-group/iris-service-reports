@@ -8,6 +8,7 @@ let TicketTransforms = {
 		var history = ticket.history;
 		var totoal = 0;
 		var start_time = 0;
+
 		for (var i = 0; i < history.length; i++) {
 			var item = history[i];
 			var name = item.event_name;
@@ -15,7 +16,7 @@ let TicketTransforms = {
 			var is_end = is_start ? false : name == 'route' || name == 'postpone' || name == 'close' || name == 'remove';
 
 			if (is_start) {
-				start_time = itme.time;
+				start_time = item.time;
 			} else if (is_end && start_time) {
 				total += item.time - start_time;
 				start_time = 0;
