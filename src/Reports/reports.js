@@ -44,7 +44,6 @@ class Reports {
 	actionGetTable({
 		table
 	}) {
-		var time = process.hrtime();
 		let rows = table.params;
 		let entity_name = table.entity;
 

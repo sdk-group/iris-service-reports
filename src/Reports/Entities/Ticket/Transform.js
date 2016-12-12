@@ -6,13 +6,13 @@ let _ = require('lodash');
 let TicketTransforms = {
 	processTime(ticket) {
 		var history = ticket.history;
-		var totoal = 0;
+		var total = 0;
 		var start_time = 0;
 
 		for (var i = 0; i < history.length; i++) {
 			var item = history[i];
 			var name = item.event_name;
-			var is_start = name == 'process';
+			var is_start = name == 'processing';
 			var is_end = is_start ? false : name == 'route' || name == 'postpone' || name == 'close' || name == 'remove';
 
 			if (is_start) {
