@@ -24,7 +24,7 @@ let TicketTransforms = {
 		}
 
 		ticket.processTime = total ? total : -1;
-	}
+	},
 	waitingTime(ticket) {
 
 		var register = _.findLast(ticket.history, ['event_name', 'route']) || _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
