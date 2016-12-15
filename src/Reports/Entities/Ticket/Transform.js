@@ -7,7 +7,7 @@ let TicketTransforms = {
 	processTime(ticket) {
 		var history = ticket.history;
 		var total = 0;
-		var start_time = 0;
+		var start_time = false;
 
 		for (var i = 0; i < history.length; i++) {
 			var item = history[i];
@@ -19,11 +19,11 @@ let TicketTransforms = {
 				start_time = item.time;
 			} else if (is_end && start_time) {
 				total += item.time - start_time;
-				start_time = 0;
+				start_time = false;
 			}
 		}
 
-		ticket.processTime = total ? total : -1;
+		ticket.processTime = !!total ? total : -1;
 	},
 	waitingTime(ticket) {
 
@@ -59,8 +59,8 @@ let TicketTransforms = {
 			ticket.waitingTime = -1;
 			return;
 		}
-
-		ticket.waitingTime = call.time - register.time;
+		let dif = call.time - register.time;
+		ticket.waitingTime = (dif > 0) ? dif : 0;
 	},
 	answers(ticket) {
 		var answers = ticket.qa_answers;

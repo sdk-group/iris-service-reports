@@ -5,6 +5,7 @@
 
 const Source = require('./TicketDataSource.js');
 const NowSource = require('./ThisDayDataSource.js');
+const HistorySource = require('./HistoryDataSource.js');
 
 
 let DataSource = {
@@ -13,12 +14,17 @@ let DataSource = {
 	},
 	discover(entity, interval) {
 		//@TEST
-		return this.ticketDataSource(interval);
+		let strategy_name = entity.toLowerCase() + "DataSource";
+		let strategy = this[strategy_name].bind(this);
+		return strategy(interval);
 	},
 	//@WARNING: only for tests
 	ticketDataSource(interval) {
 		let ticket_source = interval === 'now' ? new NowSource() : new Source(this.default_bucket);
 		return ticket_source;
+	},
+	historyDataSource() {
+		return new HistorySource(this.default_bucket);
 	}
 };
 
