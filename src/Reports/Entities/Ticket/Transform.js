@@ -62,7 +62,7 @@ let TicketTransforms = {
 			return;
 		}
 		let dif = call.time - register.time;
-		ticket.waitingTime = (dif > 0) ? dif : 0;
+		ticket.waitingTime = (dif > 0) ? dif : 1;
 	},
 	answers(ticket) {
 		var answers = ticket.qa_answers;
