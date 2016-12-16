@@ -3,6 +3,11 @@
 const couchbase = require('couchbase');
 const ViewQuery = couchbase.ViewQuery;
 
+const makeKey = (org, dedicated_date) => {
+	let dd = _.isString(dedicated_date) ? dedicated_date : dedicated_date.format("YYYY-MM-DD");
+	return `ticket-${org}-${dd}`;
+};
+
 class HistorySource {
 	constructor(main_bucket) {
 		this.main_bucket = main_bucket;
@@ -18,22 +23,23 @@ class HistorySource {
 	parse(callback) {
 		let response_counter = 0;
 		let days = this.getDays();
-		let first_date = _.head(days);
-		let last_date = _.last(days);
+		let start = _.head(days);
+		let end = _.last(days);
 
 		let query = ViewQuery.from('reports', 'history');
 
-		let start;
-		let end;
-		let id_start;
-		let id_end;
+		let start = _.head(this.departments);
+		let end = _.last(this.departments);
+		let id_start = makeKey(start, '0');
+		let id_end = makeKey(end, '9999');
 
 		query.range(start, end, true).id_rang(id_start, id_end);
 		// return Promise.map(chunks, keyset => this.main_bucket.getMulti(keyset).then(callback), {
 		// 	concurrency: 3
 		// });
 
-		this.main_bucket.query(query, (err, result) => callback(result))
+		this.main_bucket
+			.query(query, (err, result) => callback(result))
 			.then(() => {
 				this.final();
 				return true;
