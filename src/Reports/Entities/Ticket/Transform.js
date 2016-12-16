@@ -37,12 +37,14 @@ let TicketTransforms = {
 		}
 
 		//@NOTE: in case of routing
-		if (call && (call.time < register.time)) call = false;
+		if (call && (call.time - register.time < 0)) call = false;
 
 		if (register.event_name == 'activate') {
 			let time = moment.parseZone(register.local_time);
 			let day_start = time.startOf('day').format('x');
-			register.time = parseInt(day_start) + parseInt(ticket.time_description[0] * 1000);
+			register = {
+				time: parseInt(day_start) + parseInt(ticket.time_description[0] * 1000)
+			};
 		}
 
 		if (!call) {
