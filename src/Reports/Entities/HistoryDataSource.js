@@ -28,12 +28,12 @@ class HistorySource {
 
 		let query = ViewQuery.from('reports', 'history');
 
-		let start = _.head(this.departments);
-		let end = _.last(this.departments);
+		let start_key = [_.head(this.departments)];
+		let end_key = [_.last(this.departments)];
 		let id_start = makeKey(start, '0');
 		let id_end = makeKey(end, '9999');
 
-		query.range(start, end, true).id_rang(id_start, id_end);
+		query.range(start_key, end_key, true).id_rang(id_start, id_end);
 		// return Promise.map(chunks, keyset => this.main_bucket.getMulti(keyset).then(callback), {
 		// 	concurrency: 3
 		// });
