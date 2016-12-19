@@ -49,12 +49,12 @@ let TicketTransforms = {
 		}
 
 		if (!call) {
-			let time = moment.parseZone(register.local_time);
-			let day_end = time.endOf('day').format('x');
-			let now = Date.now();
+			let offset = moment.parseZone(register.local_time).utcOffset();
+			let now = moment().utcOffset(offset);
+			let day = now.format('YYYY-MM-DD');
 
-			call = now < day_end ? {
-				time: now
+			call = ticket.dedicated_date == day ? {
+				time: now.format('x')
 			} : false;
 		}
 
