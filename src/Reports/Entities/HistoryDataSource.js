@@ -38,12 +38,12 @@ class HistorySource {
 		// 	concurrency: 3
 		// });
 
-		this.main_bucket
-			.query(query, (err, result) => callback(result))
-			.then(() => {
+		this.main_bucket._bucket
+			.query(query, (err, result) => {
+				callback(result);
 				this.final();
-				return true;
-			});
+			})
+
 		return this;
 	}
 	_preFilter(tickets, first) {

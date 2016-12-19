@@ -38,7 +38,7 @@ let TicketTransforms = {
 		}
 
 		//@NOTE: in case of routing
-		if (call && (call.time - register.time < 0)) call = false;
+		// if (call && (call.time - register.time < 0)) call = false;
 
 		if (register.event_name == 'activate') {
 			let time = moment.parseZone(register.local_time);
