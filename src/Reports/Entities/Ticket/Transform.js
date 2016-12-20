@@ -37,6 +37,10 @@ let TicketTransforms = {
 			return;
 		}
 
+		if (!call && (ticket.state == 'closed' || ticket.state == 'expired' || ticket.state == 'removed')) {
+			ticket.waitingTime = -1;
+			return;
+		}
 		//@NOTE: in case of routing
 		// if (call && (call.time - register.time < 0)) call = false;
 

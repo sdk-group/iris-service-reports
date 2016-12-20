@@ -87,7 +87,7 @@ class Reports {
 						let exported = key ? data_row[key] : 1;
 						_.updateWith(accumulator, [group_index, index], (n) => n ? (n.push(exported) && n) : [exported], Object);
 						if (meta_key) {
-							let fields = meta_key == 'all' ? data_row : _.pick(data_row, _.castArray(meta_key));
+							let fields = meta_key == 'all' ? data_row : _.pick(data_row, meta_key);
 							_.updateWith(meta, [group_index, index], (n) => n ? (n.push(fields) && n) : [fields], Object);
 						}
 					})

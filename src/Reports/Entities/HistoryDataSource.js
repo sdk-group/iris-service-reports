@@ -16,8 +16,11 @@ class HistorySource {
 		this.interval = value;
 		return this;
 	}
+	format(a) {
+		return a.value;
+	}
 	setDepartments(value) {
-		this.departments = _.castArray(value);
+		this.departments = _.sortBy(_.castArray(value));
 		return this;
 	}
 	parse(callback) {
@@ -30,13 +33,10 @@ class HistorySource {
 
 		let start_key = [_.head(this.departments)];
 		let end_key = [_.last(this.departments)];
-		let id_start = makeKey(start, '0');
-		let id_end = makeKey(end, '9999');
+		let id_start = makeKey(_.head(this.departments), start + '--0');
+		let id_end = makeKey(_.head(this.departments), end + '--9999');
 
-		query.range(start_key, end_key, true).id_rang(id_start, id_end);
-		// return Promise.map(chunks, keyset => this.main_bucket.getMulti(keyset).then(callback), {
-		// 	concurrency: 3
-		// });
+		query.range(start_key, end_key, true).id_range(id_start, id_end);
 
 		this.main_bucket._bucket
 			.query(query, (err, result) => {
