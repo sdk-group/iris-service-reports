@@ -47,8 +47,9 @@ let TicketTransforms = {
 		if (register.event_name == 'activate') {
 			let time = moment.parseZone(register.local_time);
 			let day_start = time.startOf('day').format('x');
+			let ticket_start = ticket.initial_time_description ? ticket.initial_time_description[0] : ticket.time_description[0];
 			register = {
-				time: parseInt(day_start) + parseInt(ticket.time_description[0] * 1000)
+				time: parseInt(day_start) + parseInt(ticket_start * 1000)
 			};
 		}
 
