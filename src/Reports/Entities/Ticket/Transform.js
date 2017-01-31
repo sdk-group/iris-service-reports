@@ -1,9 +1,9 @@
 'use strict'
 
-let _ = require('lodash');
+const _ = require('lodash');
 
 
-let TicketTransforms = {
+const TicketTransforms = {
 	processTime(ticket) {
 		var history = ticket.history;
 		var total = 0;
@@ -46,8 +46,10 @@ let TicketTransforms = {
 
 		if (register.event_name == 'activate') {
 			let time = moment.parseZone(register.local_time);
-			let day_start = time.startOf('day').format('x');
+			let offset = time.utcOffset();
+			let day_start = moment().utcOffset(offset).startOf('day').format('x');
 			let ticket_start = ticket.initial_time_description ? ticket.initial_time_description[0] : ticket.time_description[0];
+
 			register = {
 				time: parseInt(day_start) + parseInt(ticket_start * 1000)
 			};
