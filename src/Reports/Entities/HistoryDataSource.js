@@ -11,9 +11,7 @@ const makeKey = (org, dedicated_date) => {
 class HistorySource {
 	constructor(main_bucket) {
 		this.main_bucket = main_bucket;
-		this.query = Promise.promisify(this.main_bucket._bucket.query, {
-			context: this.main_bucket._bucket
-		});
+
 	}
 	setInterval(value) {
 		this.interval = value;
@@ -41,10 +39,8 @@ class HistorySource {
 
 		query.range(start_key, end_key, true).id_range(id_start, id_end);
 
-		this.query(query).then((err, result) => {
-			callback(result);
-			return true;
-		}).then(final)
+		this.main_bucket._bucket
+			.query(query, (err, result) => (callback(result), this.final()));
 
 		return this;
 	}
