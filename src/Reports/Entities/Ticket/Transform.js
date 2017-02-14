@@ -47,7 +47,8 @@ const TicketTransforms = {
 		if (register.event_name == 'activate') {
 			let time = moment.parseZone(register.local_time);
 			let offset = time.utcOffset();
-			let day_start = moment().utcOffset(offset).startOf('day').format('x');
+			let day = call ? call.local_time || undefined;
+			let day_start = moment(day).utcOffset(offset).startOf('day').format('x');
 			let ticket_start = ticket.initial_time_description ? ticket.initial_time_description[0] : ticket.time_description[0];
 
 			register = {
