@@ -19,6 +19,9 @@ class ThisDaySource {
 		this.departments = _.castArray(value);
 		return this;
 	}
+	addTransfroms(transforms) {
+		if (~_.indexOf(transforms, 'waiting-time')) this.waitingTime = true;
+	}
 	parse(callback) {
 		Promise.map(this.departments, department => {
 			return message_bus.addTask("ticket-index", {
@@ -34,23 +37,35 @@ class ThisDaySource {
 		return this;
 	}
 	_processSessions(tickets) {
-		const registered = _.chain(tickets)
-			.filter(ticket => (ticket.pack_member && ticket.state == 'processing'))
-			.map('session')
-			.value();
+		if (!this.waitingTime) return tickets;
 
-		if (registered && registered.length) return tickets;
+		const temp = _.cloneDeep(tickets);
 
-		_.forEach(tickets, (ticket, index) => {
-			const inSessions = ticket.state == 'registered' && ~registered.indexOf(ticket.session);
-			if (!inSessions) return true;
+		_.forEach(temp, item => {
+			if (!item.pack_member) return true;
 
-			const temp = _.cloneDeep(ticket);
-			temp.state = "processing";
-			tickets[index] = temp;
+			const session = item.session;
+
+			if (!item.session_data) item.session_data = {
+				onhold: false,
+				close_events: []
+			};
+
+			if (item.state == "processing") {
+				item.session_data.onhold = true;
+				return true;
+			}
+
+			if (item.session_data.onhold) {
+				return true;
+			}
+
+			const close_event = _.find(item.history, ['event_name', 'close']);
+
+			if (close_event) item.session_data.close_events.push(close_event.time);
 		});
 
-		return tickets;
+		return temp;
 	}
 	_preFilter(tickets, first) {
 		//@TODO: filter first day. ticket's date must be greater, then interval start
@@ -67,4 +82,4 @@ class ThisDaySource {
 
 
 
-module.exports = ThisDaySource;
+module.exports = ThisDaySource;;

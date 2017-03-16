@@ -53,6 +53,8 @@ class Reports {
 			.setDepartments(table.department);
 		let group = Splitters.compose(entity_name, table.group);
 
+		_.forEach(rows, row => source.addTransfroms(row.transform));
+
 		let fns = _.mapValues(rows, row => ({
 			filter: Filters.compose(entity_name, row.filter),
 			aggregator: Aggregators.get(entity_name, row.aggregator),

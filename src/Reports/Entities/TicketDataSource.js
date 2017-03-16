@@ -14,6 +14,9 @@ class Source {
 	format(a) {
 		return a.value;
 	}
+	addTransfroms(transforms) {
+		if (~_.indexOf(transforms, 'waiting-time')) this.waitingTime = true;
+	}
 	setInterval(value) {
 		this.interval = value;
 		return this;
@@ -65,18 +68,29 @@ class Source {
 		return this;
 	}
 	_processSessions(tickets) {
-		const registered = _.chain(tickets)
-			.filter(ticket => (ticket.pack_member && ticket.state == 'processing'))
-			.map('session')
-			.value();
+		if (!this.waitingTime) return tickets;
+		_.forEach(tickets, item => {
+			if (!item.pack_member) return true;
 
-		if (registered && registered.length) return tickets;
+			const session = item.session;
 
-		_.forEach(tickets, (ticket) => {
-			const inSessions = ticket.state == 'registered' && ~registered.indexOf(ticket.session);
-			if (!inSessions) return true;
+			if (!item.session_data) item.session_data = {
+				onhold: false,
+				close_events: []
+			};
 
-			ticket.state = "processing";
+			if (item.state == "processing") {
+				item.session_data.onhold = true;
+				return true;
+			}
+
+			if (item.session_data.onhold) {
+				return true;
+			}
+
+			const close_event = _.find(item.history, ['event_name', 'close']);
+
+			if (close_event) item.session_data.close_events.push(close_event);
 		});
 
 		return tickets;

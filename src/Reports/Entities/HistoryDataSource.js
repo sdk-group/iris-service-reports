@@ -17,6 +17,9 @@ class HistorySource {
 		this.interval = value;
 		return this;
 	}
+	addTransfroms(transforms) {
+
+	}
 	format(a) {
 		return a.value;
 	}
