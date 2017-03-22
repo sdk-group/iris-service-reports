@@ -28,6 +28,11 @@ const TicketTransforms = {
 	waitingTime(ticket) {
 
 		// var register = _.findLast(ticket.history, ['event_name', 'route']) || _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
+		if (ticket.pack_member && ticket.session_data.onhold) {
+			ticket.waitingTime = -1;
+			return;
+		}
+
 		var call = _.find(ticket.history, ['event_name', 'call']);
 		var findLastEvent = event => event.time < call.time;
 
