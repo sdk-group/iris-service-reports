@@ -133,4 +133,4 @@ class Source {
 	}
 };
 
-module.exports = Source; = Source;
+module.exports = Source;
