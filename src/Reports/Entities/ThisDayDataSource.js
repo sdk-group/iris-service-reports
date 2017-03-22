@@ -40,16 +40,23 @@ class ThisDaySource {
 		if (!this.waitingTime) return tickets;
 
 		const temp = _.cloneDeep(tickets);
+		const datas = {};
 
-		_.forEach(temp, item => {
+		_.forEach(tickets, ({
+			value: item
+		}) => {
+
 			if (!item.pack_member) return true;
 
 			const session = item.session;
 
-			if (!item.session_data) item.session_data = {
-				onhold: false,
-				close_events: []
-			};
+			if (!item.session_data) {
+
+				item.session_data = (datas[item.session] || (datas[item.session] = {
+					onhold: false,
+					close_events: []
+				}));
+			}
 
 			if (item.state == "processing") {
 				item.session_data.onhold = true;
@@ -62,7 +69,9 @@ class ThisDaySource {
 
 			const close_event = _.find(item.history, ['event_name', 'close']);
 
-			if (close_event) item.session_data.close_events.push(close_event.time);
+			if (close_event) {
+				item.session_data.close_events.push(close_event);
+			};
 		});
 
 		return temp;

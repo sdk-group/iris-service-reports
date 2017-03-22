@@ -68,16 +68,25 @@ class Source {
 		return this;
 	}
 	_processSessions(tickets) {
+
 		if (!this.waitingTime) return tickets;
-		_.forEach(tickets, item => {
+		const datas = {};
+
+		_.forEach(tickets, ({
+			value: item
+		}) => {
+
 			if (!item.pack_member) return true;
 
 			const session = item.session;
 
-			if (!item.session_data) item.session_data = {
-				onhold: false,
-				close_events: []
-			};
+			if (!item.session_data) {
+
+				item.session_data = (datas[item.session] || (datas[item.session] = {
+					onhold: false,
+					close_events: []
+				}));
+			}
 
 			if (item.state == "processing") {
 				item.session_data.onhold = true;
@@ -90,7 +99,9 @@ class Source {
 
 			const close_event = _.find(item.history, ['event_name', 'close']);
 
-			if (close_event) item.session_data.close_events.push(close_event);
+			if (close_event) {
+				item.session_data.close_events.push(close_event);
+			};
 		});
 
 		return tickets;
@@ -122,4 +133,4 @@ class Source {
 	}
 };
 
-module.exports = Source;
+module.exports = Source; = Source;
