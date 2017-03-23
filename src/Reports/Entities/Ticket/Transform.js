@@ -34,13 +34,17 @@ const TicketTransforms = {
 		}
 
 		var call = _.find(ticket.history, ['event_name', 'call']);
-		var findLastEvent = event => event.time < call.time;
-
-		var register = ticket.pack_member && call && (_.findLast(ticket.session_data.close_events, findLastEvent)) || _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
+		var register = _.find(ticket.history, ['event_name', 'register']) || _.find(ticket.history, ['event_name', 'activate']);
 
 		if (!register) {
 			ticket.waitingTime = -1;
 			return;
+		}
+
+		if (ticket.pack_member && call) {
+			register = _.findLast(ticket.session_data.close_events, ({
+				time: time
+			}) => time < call.time && time > register.time);
 		}
 
 		if (!call && (ticket.state == 'closed' || ticket.state == 'expired' || ticket.state == 'removed')) {
@@ -117,3 +121,4 @@ const TicketTransforms = {
 
 
 module.exports = TicketTransforms;
+forms;
