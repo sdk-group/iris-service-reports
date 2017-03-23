@@ -37,8 +37,8 @@ class HistorySource {
 
 		let start_key = [_.head(this.departments)];
 		let end_key = [_.last(this.departments)];
-		let id_start = makeKey(_.head(this.departments), start + '--0');
-		let id_end = makeKey(_.head(this.departments), end + '--9999');
+		let id_start = makeKey(start_key[0], start + '--0');
+		let id_end = makeKey(end_key[0], end + '--9999');
 
 		query.range(start_key, end_key, true).id_range(id_start, id_end);
 
