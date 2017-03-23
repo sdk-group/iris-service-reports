@@ -44,7 +44,7 @@ const TicketTransforms = {
 		if (ticket.pack_member && call) {
 			register = _.findLast(ticket.session_data.close_events, ({
 				time: time
-			}) => time < call.time && time > register.time);
+			}) => time < call.time && time > register.time) || register;
 		}
 
 		if (!call && (ticket.state == 'closed' || ticket.state == 'expired' || ticket.state == 'removed')) {
