@@ -42,9 +42,7 @@ class ThisDaySource {
 		const temp = _.cloneDeep(tickets);
 		const datas = {};
 
-		_.forEach(tickets, ({
-			value: item
-		}) => {
+		_.forEach(tickets, item => {
 
 			if (!item.pack_member) return true;
 

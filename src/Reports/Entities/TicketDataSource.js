@@ -10,6 +10,7 @@ const makeKey = (org, dedicated_date) => {
 class Source {
 	constructor(main_bucket) {
 		this.main_bucket = main_bucket;
+		this.waitingTime = false;
 	}
 	format(a) {
 		return a.value;
@@ -54,10 +55,7 @@ class Source {
 				let chunks = _.chunk(keys, 1000);
 
 				return Promise.map(chunks, keyset => this.main_bucket.getMulti(keyset)
-					.then(data => {
-						this._processSessions(data.value);
-						return data;
-					})
+					.then(data => this._processSessions(data))
 					.then(callback), {
 						concurrency: 3
 					});
