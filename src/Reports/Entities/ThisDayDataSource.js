@@ -48,13 +48,10 @@ class ThisDaySource {
 
 			const session = item.session;
 
-			if (!item.session_data) {
-
-				item.session_data = (datas[item.session] || (datas[item.session] = {
-					onhold: false,
-					close_events: []
-				}));
-			}
+			item.session_data = (datas[item.session] || (datas[item.session] = {
+				onhold: false,
+				close_events: []
+			}));
 
 			if (item.state == "processing") {
 				item.session_data.onhold = true;
