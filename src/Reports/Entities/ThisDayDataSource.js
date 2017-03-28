@@ -39,10 +39,9 @@ class ThisDaySource {
 	_processSessions(tickets) {
 		if (!this.waitingTime) return tickets;
 
-		const temp = _.cloneDeep(tickets);
 		const datas = {};
 
-		_.forEach(temp, item => {
+		_.forEach(tickets, item => {
 
 			if (!item.pack_member) return true;
 
@@ -69,7 +68,7 @@ class ThisDaySource {
 			};
 		});
 
-		return temp;
+		return tickets;
 	}
 	_preFilter(tickets, first) {
 		//@TODO: filter first day. ticket's date must be greater, then interval start
