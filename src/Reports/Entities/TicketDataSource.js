@@ -102,6 +102,9 @@ class Source {
 			};
 		});
 
+		_.forEach(datas, item => {
+			!item.onhold && (item.close_events = _.sortBy(item.close_events, "time"));
+		});
 		return tickets;
 	}
 	_preFilter(tickets, first) {
