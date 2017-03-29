@@ -41,15 +41,16 @@ const TicketTransforms = {
 			return;
 		}
 
-		if (ticket.pack_member && call) {
-			register = _.findLast(ticket.session_data.close_events, ({
-				time: time
-			}) => time < call.time && time > register.time) || register;
-		}
-
 		if (!call && (ticket.state == 'closed' || ticket.state == 'expired' || ticket.state == 'removed')) {
 			ticket.waitingTime = -1;
 			return;
+		}
+
+		if (ticket.pack_member) {
+			const close_events = ticket.session_data.close_events;
+			register = _.findLast(close_events, ({
+				time: time
+			}) => (!call || time < call.time) && time > register.time) || register;
 		}
 		//@NOTE: in case of routing
 		// if (call && (call.time - register.time < 0)) call = false;
